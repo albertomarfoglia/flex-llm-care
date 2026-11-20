@@ -1,0 +1,24 @@
+# CVV-ADM prototype SHACL shapes for MOTU-like hospital stays (revision, October 2026).
+# Constraint checking only (no OWL reasoning). Value sets and score ranges follow the MOTU data
+# descriptor (Arcobelli et al., Sci Data 2024, Tables 1-2); height bounds are illustrative.
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:  <https://example.org/flex-llm-care/> .
+
+ex:HospitalStayShape a sh:NodeShape ;
+    sh:targetClass ex:HospitalStay ;
+    sh:property [ sh:path ex:patient_id ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:message "exactly one patient identifier" ] ;
+    sh:property [ sh:path ex:admission_date ; sh:minCount 1 ; sh:datatype xsd:date ;
+                  sh:lessThanOrEquals ex:discharge_date ;
+                  sh:message "admission date required, must not follow the discharge date" ] ;
+    sh:property [ sh:path ex:discharge_date ; sh:datatype xsd:date ] ;
+    sh:property [ sh:path ex:sex ; sh:in ( "M" "F" ) ; sh:message "sex must be M or F" ] ;
+    sh:property [ sh:path ex:amputation_side ; sh:in ( "L" "R" ) ] ;
+    sh:property [ sh:path ex:height_m ; sh:datatype xsd:decimal ;
+                  sh:minInclusive 1.2 ; sh:maxInclusive 2.2 ; sh:severity sh:Warning ;
+                  sh:message "height outside the illustrative plausibility range" ] ;
+    sh:property [ sh:path ex:lci_admission_score ; sh:minInclusive 0 ; sh:maxInclusive 56 ;
+                  sh:message "LCI score outside 0-56" ] ;
+    sh:property [ sh:path ex:barthel_admission_total ; sh:minInclusive 0 ; sh:maxInclusive 100 ] ;
+    sh:property [ sh:path ex:morse_admission_total ; sh:minInclusive 0 ; sh:maxInclusive 125 ] .

@@ -31,8 +31,10 @@ def log_predictions_as_artifact(results: list[PredictionResult], dataset: list[d
             "retrieved_resources": ", ".join(r.retrieved_resources),
             "y_pred":              r.y_pred,
             "y_true":              r.y_true,
+            "ground_truth":        ", ".join(r.ground_truth),
             "correct":             r.y_pred == r.y_true,
-            "answer":              str(", ".join([answer for _, answer in r.answer]))
+            "answer":              str(", ".join([answer for _, answer in r.answer])),
+            "error":               r.error,
         })
 
     df = pd.DataFrame(rows)

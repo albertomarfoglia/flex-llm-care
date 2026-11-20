@@ -1,0 +1,14 @@
+# Acceptance criteria for promoting a candidate FRMT-M configuration over the champion.
+# Frozen on 2026-10-23, before the candidate was run (paper, Section 5.10).
+# A candidate is promoted only if ALL criteria hold on the evaluated items; otherwise it is rejected.
+datasets: ["motu", "mimic", "sphn"]
+criteria:
+  pooled_top3_must_improve: true          # pooled top-3 accuracy (all datasets) candidate > champion
+  max_significant_degradation:            # no dataset where the champion is significantly better on top-3
+    metric: "top3_accuracy"
+    test: "exact_mcnemar_two_sided"
+    alpha: 0.05
+    multiple_comparison_correction: null  # deliberately none (conservative towards the champion)
+  max_failure_rate: 0.0
+  max_invalid_output_rate: 0.0
+  max_median_latency_ratio: 1.25          # candidate / champion, inference seconds per item

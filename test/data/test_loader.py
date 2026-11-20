@@ -10,6 +10,7 @@ import pytest
 
 from src.data.loader import Loader
 
+
 def _make_resource_json(tmp_path: Path, resource: str, payload: dict) -> Path:
     """Write a scraped resource JSON file in the expected directory layout."""
     resource_dir = tmp_path / resource
@@ -232,3 +233,28 @@ class TestLoaderLoadDataset:
         ])
         loader = _make_loader(tmp_path, BASE_RESOURCE_ROWS, {"patient": MINIMAL_PATIENT_PAYLOAD})
         assert loader.load_dataset("eval.csv") == []
+
+
+def test_ground_truth_order_follows_csv_order(tmp_path):
+    """Multi-resource mappings keep CSV order (deduplicated)."""
+    rows = BASE_RESOURCE_ROWS + [{"Resource": "Encounter", "GroupName": "Base", "MaturityLevel": "3"}]
+    _make_dataset_csv(tmp_path, "eval.csv", [
+        {"Field_description": "x", "Mapping": "['Encounter.id', 'Patient.id', 'Encounter.period']"},
+    ])
+    loader = _make_loader(tmp_path, rows, {"patient": MINIMAL_PATIENT_PAYLOAD})
+    assert loader.load_dataset("eval.csv")[0]["ground_truth"] == ["encounter", "patient"]
+
+
+def test_ground_truth_order_is_independent_of_hash_seed():
+    """Regression: list(set(...)) made label order (and metrics) depend on PYTHONHASHSEED."""
+    import os  # pylint: disable=import-outside-toplevel
+    import subprocess  # pylint: disable=import-outside-toplevel
+    import sys  # pylint: disable=import-outside-toplevel
+    code = ("from src.data.loader import Loader; import json; "
+            "print(json.dumps([d['ground_truth'] for d in Loader().load_dataset('motu_enriched.csv')]))")
+    outputs = {
+        subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True,
+                       env={**os.environ, "PYTHONHASHSEED": seed, "PYTHONPATH": "."}).stdout
+        for seed in ("1", "2", "3")
+    }
+    assert len(outputs) == 1

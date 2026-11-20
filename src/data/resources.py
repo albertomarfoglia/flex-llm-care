@@ -1,7 +1,9 @@
 """Utilities for loading and filtering the targeted FHIR resource list."""
 
 from pathlib import Path
+
 import pandas as pd
+
 
 def __parse_maturity(value) -> int:
     unknown_maturity  = 5
@@ -24,3 +26,10 @@ def load_resources(path: Path, sep: str = ",") -> list[str]:
         for r in df.loc[mask, "Resource"]
         if r.strip()
     })
+
+
+def load_resource_names(path: Path, sep: str = ",") -> list[str]:
+    """CamelCase names (as in the CSV) of the resources returned by ``load_resources``."""
+    targeted = set(load_resources(path, sep))
+    df = pd.read_csv(path, sep=sep)
+    return sorted({r.strip() for r in df["Resource"].dropna() if r.strip().lower() in targeted})

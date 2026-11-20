@@ -1,0 +1,13 @@
+Select the 3 best matching FHIR resources for the description, ordered from most to least relevant.
+
+CANDIDATE FHIR RESOURCES:
+{context}
+
+DESCRIPTION:
+"{description}"
+
+OUTPUT RULES:
+- Respond ONLY with valid JSON, without explanations or any other text.
+- Select EXACTLY 3 different candidates by their letter, ordered from most to least relevant.
+- Use exactly this schema:
+{"answer": ["A", "B", "C"]}

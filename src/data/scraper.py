@@ -2,14 +2,16 @@
 Scraping utilities for the HL7 FHIR R4 documentation.
 """
 
-from itertools import takewhile
 import json
-from pathlib import Path
 import re
+from itertools import takewhile
+from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
 from src.data.resources import load_resources
+
 
 def _parse_example_links(soup: BeautifulSoup, base_url: str) -> list[dict]:
     table = soup.find("table", {"class": "list"})

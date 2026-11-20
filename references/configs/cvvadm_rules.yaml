@@ -1,0 +1,30 @@
+# CVV-ADM prototype rules for MOTU-like hospital-stay records (revision, October 2026).
+# Sources: the MOTU data descriptor (Arcobelli et al., Sci Data 11, 806, 2024; Tables 1-2) documents
+# the allowed codes and score ranges. Rules marked "illustrative" are NOT clinical guidelines:
+# they are placeholders that require review by a clinician before any real use.
+rules:
+  - {id: REQ-1, type: required, fields: [patient_id, admission_date, discharge_date], severity: error,
+     source: "MOTU data descriptor, Table 1 (identifiers and stay dates)"}
+  - {id: ORD-1, type: order, before: admission_date, after: discharge_date, severity: error,
+     source: "logical constraint (a stay cannot end before it starts)"}
+  - {id: ORD-2, type: order, before: birth_date, after: admission_date, severity: error,
+     source: "logical constraint"}
+  - {id: FUT-1, type: not_future, field: discharge_date, severity: error,
+     source: "logical constraint (retrospective dataset)"}
+  - {id: SEX-1, type: allowed, field: sex, values: [M, F], severity: error,
+     source: "MOTU data descriptor, Table 1 (Sex: M = Male, F = Female)"}
+  - {id: SIDE-1, type: allowed, field: amputation_side, values: [L, R], severity: error,
+     source: "MOTU data descriptor, Table 1 (AmputationSide: L or R)"}
+  - {id: CAUSE-1, type: allowed, field: amputation_cause,
+     values: [cancer, congenital, infectious, traumatic, vascular], severity: warning,
+     source: "MOTU data descriptor, Table 1 (AmputationCause)"}
+  - {id: LCI-1, type: range, field: lci_admission_score, min: 0, max: 56, severity: error,
+     source: "MOTU data descriptor, Table 2 (LCI score range 0-56)"}
+  - {id: BAR-1, type: range, field: barthel_admission_total, min: 0, max: 100, severity: error,
+     source: "MOTU data descriptor, Table 2 (Barthel total 0-100)"}
+  - {id: MOR-1, type: range, field: morse_admission_total, min: 0, max: 125, severity: error,
+     source: "MOTU data descriptor, Table 2 (Morse total 0-125)"}
+  - {id: HGT-1, type: range, field: height_m, min: 1.2, max: 2.2, severity: warning,
+     source: "illustrative plausibility bound, requires clinical review"}
+  - {id: WGT-1, type: range, field: weight_kg, min: 30, max: 200, severity: warning,
+     source: "illustrative plausibility bound, requires clinical review"}

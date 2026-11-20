@@ -5,8 +5,11 @@ Loader module for FHIR documentation and clinical dataset ingestion.
 import ast
 import json
 from pathlib import Path
+
 import pandas as pd
+
 from src.data.resources import load_resources
+
 
 class Loader:
     """
@@ -51,8 +54,10 @@ class Loader:
 
     @staticmethod
     def __parse_mapping(value: str) -> list[str]:
-        raw = ast.literal_eval(value) if value.startswith("[") else [value]
-        return list({m.split(".")[0].lower() for m in raw})
+        # Deduplicate while keeping CSV order: list(set(...)) depended on
+        # PYTHONHASHSEED and made the metrics vary between processes.
+        raw = ast.literal_eval(value) if value.strip().startswith("[") else [value]
+        return list(dict.fromkeys(m.split(".")[0].strip().lower() for m in raw))
 
     @staticmethod
     def __parse_documentation(documentation: dict[str, str]) -> list[str]:
@@ -76,7 +81,11 @@ class Loader:
             "resource":      resource,
             **self.__parse_sections(doc["sections"]),
             "examples":      self.__parse_examples(doc.get("examples", []), resource),
-            "documentation": self.__parse_documentation(doc.get("documentation", {})),
+            # scraper.py writes element definitions under "definitions";
+            # the committed Docs/ snapshot stores them under "documentation".
+            "documentation": self.__parse_documentation(
+                doc.get("documentation", doc.get("definitions", {}))
+            ),
         })
 
     def __filter_by_resources(self, df: pd.DataFrame) -> pd.DataFrame:

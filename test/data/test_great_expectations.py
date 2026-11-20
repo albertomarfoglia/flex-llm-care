@@ -11,8 +11,8 @@ import pandas as pd
 import pytest
 
 DATASETS = {
-    "MOTU":     Path("data/motu/motu.csv"),
-    "MIMIC-IV": Path("data/mimic/mimic.csv"),
+    "MOTU":     Path("data/motu_enriched.csv"),
+    "MIMIC-IV": Path("data/mimic_enriched.csv"),
     "SPHN":     Path("data/sphn/sphn.csv"),
 }
 
